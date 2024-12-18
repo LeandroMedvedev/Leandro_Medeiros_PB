@@ -12,7 +12,7 @@ export const colors = {
   darkAubergine: '#2c001e',
   lightAubergine: '#77216f',
   ubuntuOrange: '#e95420',
-  darkGold: '#c5b358',
+  gold: '#ffd700',
   darkRed: '#ac1015',
   ciano: '#0f4d5f',
   skyBlue: '#61dafb',
