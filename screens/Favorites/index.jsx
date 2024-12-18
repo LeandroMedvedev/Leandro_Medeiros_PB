@@ -19,7 +19,6 @@ export default function Favorites() {
   const fetchMovies = useCallback(() => getMoviesService(API_FAVORITE_URL), []);
 
   const { movies, loading, error } = useFetchMovies(fetchMovies);
-  console.log('favoritos', movies);
 
   if (loading) {
     return (

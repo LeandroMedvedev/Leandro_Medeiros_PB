@@ -21,7 +21,6 @@ function Watchlist() {
     [API_WATCHLIST_URL]
   );
   const { movies, loading, error } = useFetchMovies(fetchMovies);
-  console.log('interesses', movies);
 
   if (loading) {
     return (
