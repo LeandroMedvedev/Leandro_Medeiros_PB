@@ -1,70 +1,49 @@
+import {
+  View,
+  Text,
+  Image,
+  StyleSheet,
+  TouchableOpacity,
+  useWindowDimensions,
+} from 'react-native';
 import { useEffect, useState } from 'react';
-import { Menu, MenuItem } from 'react-native-paper';
 import { useNavigation } from '@react-navigation/native';
-import { View, Text, Image, StyleSheet, TouchableOpacity } from 'react-native';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import { FormControl, InputLabel, MenuItem, Select } from '@mui/material';
 
 import { useAuthContext, useMoviesContext } from '../../contexts';
-import { getCurrentRoute } from '../../utils';
 import { MOVIE_CATEGORIES } from '../../constants';
 import { colors } from '../../styles/globalStyles';
+import { getCurrentRoute } from '../../utils';
 import { movieTheater } from '../../assets';
 // import Svg from '../Svg';
 
 export default function Header() {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
-  const [visible, setVisible] = useState(false);
 
   const { url, setUrl } = useMoviesContext();
+  const { width } = useWindowDimensions();
   const { signOut } = useAuthContext();
 
   const navigation = useNavigation();
   const route = getCurrentRoute();
-  const isHomePage = !route;
+  const isMoviePage = route === 'Movies';
 
   useEffect(() => {
-    const isAuth = !!localStorage.getItem('session_id');
-    if (isAuth) setIsAuthenticated(isAuth);
+    const checkAuth = async () => {
+      try {
+        const sessionId = await AsyncStorage.getItem('session_id');
+        const isAuth = !!sessionId;
+        setIsAuthenticated(isAuth);
+      } catch (err) {
+        console.error('Erro ao verificar autenticação:', err);
+      }
+    };
+
+    checkAuth();
   }, [route]);
 
   const isCurrentRoute = (routeName) => route === routeName;
-
-  const headerLabels = isAuthenticated ? (
-    <>
-      {route !== 'watchlist' && (
-        <TouchableOpacity onPress={() => navigation.navigate('Watchlist')}>
-          <Text
-            style={[
-              styles.headerLabel,
-              isCurrentRoute('Watchlist') && styles.activeLink,
-            ]}
-          >
-            Interesses
-          </Text>
-        </TouchableOpacity>
-      )}
-      {route !== 'favorites' && (
-        <TouchableOpacity onPress={() => navigation.navigate('Favorites')}>
-          <Text
-            style={[
-              styles.headerLabel,
-              isCurrentRoute('Favorites') && styles.activeLink,
-            ]}
-          >
-            Favoritos
-          </Text>
-        </TouchableOpacity>
-      )}
-      {
-        <TouchableOpacity onPress={() => signOut()}>
-          <Text style={styles.headerLabel}>Sair</Text>
-        </TouchableOpacity>
-      }
-    </>
-  ) : (
-    <TouchableOpacity onPress={() => navigation.navigate('SignIn')}>
-      <Text style={styles.headerLabel}>Entrar</Text>
-    </TouchableOpacity>
-  );
 
   return (
     <View style={[styles.container]}>
@@ -78,33 +57,88 @@ export default function Header() {
         <Image style={styles.logo} source={{ uri: movieTheater }} />
       </TouchableOpacity>
 
-      {/* {isHomePage && (
-        <Menu
-          visible={visible}
-          onDismiss={() => setVisible(false)}
-          anchor={
-            <TouchableOpacity onPress={() => setVisible(true)}>
-              <Text style={styles.select}>Categorias</Text>
-            </TouchableOpacity>
-          }
-        >
-          {MOVIE_CATEGORIES.map((item, index) => (
-            <MenuItem
-              key={index}
-              onPress={() => {
-                setUrl(item.url);
-                setVisible(false);
-              }}
-            >
-              {item.category}
-            </MenuItem>
-          ))}
-        </Menu>
-      )} */}
+      {isMoviePage && (
+        <FormControl variant='standard' sx={{ display: width < 480 && 'none' }}>
+          <InputLabel
+            sx={{
+              fontSize: 18,
+              color: colors.white,
+              fontFamily: 'sans-serif',
+              '&.Mui-focused': { color: colors.white },
+            }}
+          >
+            Categorias
+          </InputLabel>
+
+          <Select
+            value={url}
+            onChange={(e) => setUrl(e.target.value)}
+            displayEmpty
+            sx={{
+              fontFamily: 'sans-serif',
+              fontSize: 14,
+              color: colors.white,
+            }}
+          >
+            {MOVIE_CATEGORIES &&
+              MOVIE_CATEGORIES.map((item, index) => (
+                <MenuItem
+                  key={index}
+                  value={item.url}
+                  sx={{
+                    fontFamily: 'sans-serif',
+                  }}
+                >
+                  {item.category}
+                </MenuItem>
+              ))}
+          </Select>
+        </FormControl>
+      )}
 
       <View style={styles.headerLabels}>
-        {!isAuthenticated}
-        {headerLabels}
+        {/* {!isAuthenticated} */}
+        {isAuthenticated ? (
+          <>
+            {route !== 'watchlist' && (
+              <TouchableOpacity
+                onPress={() => navigation.navigate('Watchlist')}
+              >
+                <Text
+                  style={[
+                    styles.headerLabel,
+                    isCurrentRoute('Watchlist') && styles.activeLink,
+                  ]}
+                >
+                  Interesses
+                </Text>
+              </TouchableOpacity>
+            )}
+            {route !== 'favorites' && (
+              <TouchableOpacity
+                onPress={() => navigation.navigate('Favorites')}
+              >
+                <Text
+                  style={[
+                    styles.headerLabel,
+                    isCurrentRoute('Favorites') && styles.activeLink,
+                  ]}
+                >
+                  Favoritos
+                </Text>
+              </TouchableOpacity>
+            )}
+            {
+              <TouchableOpacity onPress={() => signOut()}>
+                <Text style={styles.headerLabel}>Sair</Text>
+              </TouchableOpacity>
+            }
+          </>
+        ) : (
+          <TouchableOpacity onPress={() => navigation.navigate('SignIn')}>
+            <Text style={styles.headerLabel}>Entrar</Text>
+          </TouchableOpacity>
+        )}
       </View>
     </View>
   );
@@ -142,8 +176,7 @@ const styles = StyleSheet.create({
     height: 30,
     marginLeft: 8,
   },
-  select: {
-    fontFamily: 'Ubuntu',
+  form: {
     color: colors.white,
     fontSize: 14,
   },

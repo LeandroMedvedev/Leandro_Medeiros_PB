@@ -1,5 +1,3 @@
-import { useCallback } from 'react';
-import Constants from 'expo-constants';
 import {
   View,
   Text,
@@ -7,10 +5,12 @@ import {
   StyleSheet,
   ActivityIndicator,
 } from 'react-native';
+import Constants from 'expo-constants';
+import { useCallback, useEffect, useState } from 'react';
 
+import { MovieCard, SearchBar } from '../../components';
 import { colors } from '../../styles/globalStyles';
 import { getMoviesService } from '../../services';
-import { MovieCard } from '../../components';
 import { useFetchMovies } from '../../hooks';
 
 const { API_WATCHLIST_URL } = Constants.expoConfig.extra;
@@ -21,6 +21,28 @@ function Watchlist() {
     [API_WATCHLIST_URL]
   );
   const { movies, loading, error } = useFetchMovies(fetchMovies);
+
+  const [filteredMovies, setFilteredMovies] = useState(movies);
+  const [searchQuery, setSearchQuery] = useState('');
+
+  const handleSearch = (query) => {
+    setSearchQuery(query);
+
+    if (query.trim() === '') {
+      setFilteredMovies(movies);
+    } else {
+      const filtered = movies.filter(
+        (movie) =>
+          movie.title.toLowerCase().includes(query.toLowerCase()) ||
+          movie.original_title.toLowerCase().includes(query.toLowerCase())
+      );
+      setFilteredMovies(filtered);
+    }
+  };
+
+  useEffect(() => {
+    setFilteredMovies(movies);
+  }, [movies]);
 
   if (loading) {
     return (
@@ -40,8 +62,10 @@ function Watchlist() {
 
   return (
     <View style={styles.container}>
+      <SearchBar value={searchQuery} onChangeText={handleSearch} />
+
       <FlatList
-        data={movies}
+        data={filteredMovies}
         renderItem={({ item }) => <MovieCard movie={item} />}
         keyExtractor={(_, index) => index.toString()}
         contentContainerStyle={styles.list}

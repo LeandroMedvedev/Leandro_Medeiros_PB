@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import { View, ActivityIndicator } from 'react-native';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 import { colors } from '../styles/globalStyles';
 import { SignIn } from '../screens';
@@ -8,8 +9,8 @@ export default function PrivateRoute({ children }) {
   const [isAuthenticated, setIsAuthenticated] = useState(null);
 
   useEffect(() => {
-    const checkAuthentication = () => {
-      const sessionId = localStorage.getItem('session_id');
+    const checkAuthentication = async () => {
+      const sessionId = await AsyncStorage.getItem('session_id');
       setIsAuthenticated(!!sessionId);
     };
 

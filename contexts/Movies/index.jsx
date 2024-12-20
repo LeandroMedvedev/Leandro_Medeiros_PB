@@ -32,8 +32,8 @@ function MoviesProvider({ children }) {
   }, [url]);
 
   const sharedStates = {
-    setUrl,
     loading,
+    setUrl,
     movies,
     error,
     url,

@@ -5,17 +5,44 @@ import {
   StyleSheet,
   ActivityIndicator,
 } from 'react-native';
+import { useEffect, useState } from 'react';
 
+import { MovieCard, SearchBar } from '../../components';
 import { colors } from '../../styles/globalStyles';
 import { useMoviesContext } from '../../contexts';
-import { MovieCard } from '../../components';
-
-// const { width } = Dimensions.get('window');
 
 export default function Movies() {
   const { movies, loading, error } = useMoviesContext();
 
-  // const numColumns = Math.floor(width / 233.33);
+  const [filteredMovies, setFilteredMovies] = useState(movies);
+  const [searchQuery, setSearchQuery] = useState('');
+
+  const handleSearch = (query) => {
+    setSearchQuery(query);
+
+    if (query.trim() === '') {
+      setFilteredMovies(movies);
+    } else {
+      const filtered = movies.filter(
+        (movie) =>
+          movie.title.toLowerCase().includes(query.toLowerCase()) ||
+          movie.original_title.toLowerCase().includes(query.toLowerCase())
+      );
+      setFilteredMovies(filtered);
+    }
+  };
+
+  useEffect(() => {
+    setFilteredMovies(movies);
+  }, [movies]);
+
+  if (loading) {
+    return (
+      <View style={styles.centered}>
+        <ActivityIndicator size='large' color='#FFD700' />
+      </View>
+    );
+  }
 
   if (loading) {
     return (
@@ -35,8 +62,10 @@ export default function Movies() {
 
   return (
     <View style={styles.container}>
+      <SearchBar value={searchQuery} onChangeText={handleSearch} />
+
       <FlatList
-        data={movies}
+        data={filteredMovies}
         keyExtractor={(_, index) => index.toString()}
         renderItem={({ item }) => <MovieCard movie={item} />}
         contentContainerStyle={styles.list}
@@ -47,9 +76,9 @@ export default function Movies() {
 
 const styles = StyleSheet.create({
   container: {
-    display: 'flex',
     flex: 1,
     padding: 16,
+    display: 'flex',
     backgroundColor: colors.ebony,
   },
   list: {
@@ -66,8 +95,8 @@ const styles = StyleSheet.create({
     backgroundColor: colors.ebony,
   },
   loadingText: {
-    marginTop: 10,
     fontSize: 16,
+    marginTop: 10,
     color: colors.white,
   },
   error: {

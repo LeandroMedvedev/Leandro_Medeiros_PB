@@ -1,10 +1,10 @@
 export default ({ config }) => ({
   ...config,
-  name: 'Cineplay',
+  name: 'CinePlay',
   slug: 'cineplay',
   version: '0.1.0',
   orientation: 'portrait',
-  icon: './assets/images/projector.png',
+  icon: './assets/images/movie.png',
   userInterfaceStyle: 'light',
   splash: {
     image: './assets/splash.png',
@@ -21,7 +21,7 @@ export default ({ config }) => ({
     },
   },
   web: {
-    favicon: './assets/images/projector.png',
+    favicon: './assets/images/movie.png',
   },
   extra: {
     API_URL: process.env.API_URL,

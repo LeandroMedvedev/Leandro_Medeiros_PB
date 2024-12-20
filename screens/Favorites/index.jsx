@@ -5,13 +5,13 @@ import {
   StyleSheet,
   ActivityIndicator,
 } from 'react-native';
-import { useCallback } from 'react';
 import Constants from 'expo-constants';
+import { useCallback, useEffect, useState } from 'react';
 
+import { MovieCard, SearchBar } from '../../components';
 import { colors } from '../../styles/globalStyles';
 import { getMoviesService } from '../../services';
 import { useFetchMovies } from '../../hooks';
-import { MovieCard } from '../../components';
 
 const { API_FAVORITE_URL } = Constants.expoConfig.extra;
 
@@ -19,6 +19,28 @@ export default function Favorites() {
   const fetchMovies = useCallback(() => getMoviesService(API_FAVORITE_URL), []);
 
   const { movies, loading, error } = useFetchMovies(fetchMovies);
+
+  const [filteredMovies, setFilteredMovies] = useState(movies);
+  const [searchQuery, setSearchQuery] = useState('');
+
+  const handleSearch = (query) => {
+    setSearchQuery(query);
+
+    if (query.trim() === '') {
+      setFilteredMovies(movies);
+    } else {
+      const filtered = movies.filter(
+        (movie) =>
+          movie.title.toLowerCase().includes(query.toLowerCase()) ||
+          movie.original_title.toLowerCase().includes(query.toLowerCase())
+      );
+      setFilteredMovies(filtered);
+    }
+  };
+
+  useEffect(() => {
+    setFilteredMovies(movies);
+  }, [movies]);
 
   if (loading) {
     return (
@@ -38,8 +60,10 @@ export default function Favorites() {
 
   return (
     <View style={styles.container}>
+      <SearchBar value={searchQuery} onChangeText={handleSearch} />
+
       <FlatList
-        data={movies}
+        data={filteredMovies}
         keyExtractor={(item) => item.id.toString()}
         renderItem={({ item }) => <MovieCard movie={item} />}
         contentContainerStyle={styles.list}
@@ -68,7 +92,7 @@ const styles = StyleSheet.create({
     backgroundColor: colors.ebony,
   },
   error: {
-    color: colors.darkRed,
     fontSize: 16,
+    color: colors.darkRed,
   },
 });
