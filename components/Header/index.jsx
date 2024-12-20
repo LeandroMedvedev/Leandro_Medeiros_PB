@@ -16,7 +16,6 @@ import { MOVIE_CATEGORIES } from '../../constants';
 import { colors } from '../../styles/globalStyles';
 import { getCurrentRoute } from '../../utils';
 import { movieTheater } from '../../assets';
-// import Svg from '../Svg';
 
 export default function Header() {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
@@ -53,7 +52,6 @@ export default function Header() {
       >
         <Text style={styles.brand}>CinePlay</Text>
 
-        {/* <Svg style={styles.logo} src={movieTheater} /> */}
         <Image style={styles.logo} source={{ uri: movieTheater }} />
       </TouchableOpacity>
 
@@ -97,7 +95,6 @@ export default function Header() {
       )}
 
       <View style={styles.headerLabels}>
-        {/* {!isAuthenticated} */}
         {isAuthenticated ? (
           <>
             {route !== 'watchlist' && (
@@ -135,9 +132,24 @@ export default function Header() {
             }
           </>
         ) : (
-          <TouchableOpacity onPress={() => navigation.navigate('SignIn')}>
-            <Text style={styles.headerLabel}>Entrar</Text>
-          </TouchableOpacity>
+          <>
+            <TouchableOpacity
+              onPress={() => navigation.navigate('SubscriptionPlans')}
+            >
+              <Text
+                style={[
+                  styles.headerLabel,
+                  isCurrentRoute('SubscriptionPlans') && styles.activeLink,
+                ]}
+              >
+                Assinatura
+              </Text>
+            </TouchableOpacity>
+
+            <TouchableOpacity onPress={() => navigation.navigate('SignIn')}>
+              <Text style={styles.headerLabel}>Entrar</Text>
+            </TouchableOpacity>
+          </>
         )}
       </View>
     </View>

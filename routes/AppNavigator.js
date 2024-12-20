@@ -1,8 +1,15 @@
 import { createStackNavigator } from '@react-navigation/stack';
 
-import { Favorites, Movies, MovieDetails, Watchlist, SignIn } from '../screens';
 import PrivateRoute from './PrivateRoute.jsx';
 import { Header } from '../components';
+import {
+  SignIn,
+  Movies,
+  Favorites,
+  Watchlist,
+  MovieDetails,
+  SubscriptionPlans,
+} from '../screens';
 
 const Stack = createStackNavigator();
 
@@ -15,6 +22,7 @@ export default function AppNavigator() {
       <Stack.Screen name='Movies' component={Movies} />
       <Stack.Screen name='MovieDetails' component={MovieDetails} />
       <Stack.Screen name='SignIn' component={SignIn} />
+      <Stack.Screen name='SubscriptionPlans' component={SubscriptionPlans} />
 
       {/* Rotas Privadas */}
       <Stack.Screen name='Watchlist'>
@@ -24,7 +32,6 @@ export default function AppNavigator() {
           </PrivateRoute>
         )}
       </Stack.Screen>
-
       <Stack.Screen name='Favorites'>
         {() => (
           <PrivateRoute>
